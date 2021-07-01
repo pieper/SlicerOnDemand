@@ -129,6 +129,12 @@ QStatusBar{
         <height>64</height>
        </size>
       </property>
+      <property name="maximumSize">
+       <size>
+        <width>256</width>
+        <height>256</height>
+       </size>
+      </property>
       <property name="font">
        <font>
         <pointsize>36</pointsize>
