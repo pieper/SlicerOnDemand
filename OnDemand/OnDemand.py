@@ -350,12 +350,34 @@ class OnDemandApp(object):
 
     self.mainWindow.show()
 
+  def onCreateInstance(self):
+    self.ui.launchButton.hide()
+    self.ui.rocketButton.show()
+    self.ui.statusbar.showMessage('Creating an On Demand Machine...')
+
+  def onLoopInstanceStatus(self):
+    self.ui.rocketButton.hide()
+    self.ui.robotButton.show()
+    self.ui.statusbar.showMessage('Setting up the On Demand Machine...')
+
+  def onCreateTunnel(self):
+    self.ui.robotButton.hide()
+    self.ui.tunnelButton.show()
+    self.ui.statusbar.showMessage('Establishing a secure connection...')
+
+  def onInstanceRunning(self):
+    self.ui.tunnelButton.hide()
+    self.ui.shutDownButton.show()
+    self.ui.statusbar.showMessage('The On Demand Machine is online.')
+
   def launchAndConnect(self):
     startTime = time.time()
     number = random.randint(1, 1000)
     instanceID = f"sdp-slicer-on-demand-{number}"
+    self.onCreateInstance()  # Change launch button to rocket button
     self.logic.launchSlicer(instanceID)
     launchSlicerTime = time.time()
+    self.onLoopInstanceStatus()  # Change rocket button to robot button
     waitTime = 0
     while waitTime < 300:
       waitTime += 1
@@ -364,6 +386,7 @@ class OnDemandApp(object):
         break
       else:
         print(f"Status: {status} {waitTime}")
+    self.onCreateTunnel()  # Change robot button to lock with key button
     port = 6080 + number
     self.sshProcess = self.logic.gcp.instanceSSHTunnel(instanceID, port)
     instanceSSHTunnelTime = time.time()
@@ -385,6 +408,7 @@ class OnDemandApp(object):
     print(f"instanceSSHTunnelTime = {instanceSSHTunnelTime - launchSlicerTime}")
     print(f"bootTime = {bootTime - instanceSSHTunnelTime}")
     print(f"Total Time = {bootTime - startTime}")
+    self.onInstanceRunning()  # Change lock with key button to shut down button
 
   def disconnectAndDestroy(self):
     """TODO: Implement instance liquidation."""
