@@ -23,7 +23,7 @@ class OnDemand(ScriptedLoadableModule):
     self.parent.title = "OnDemand"
     self.parent.categories = ["Wizards"]
     self.parent.dependencies = []
-    self.parent.contributors = ["Steve Pieper (Isomics, Inc.)"]
+    self.parent.contributors = ["Steve Pieper (Isomics, Inc.), Theodore Aptekarev (Independent)"]
     self.parent.helpText = """
 Create compute instances with Slicer pre-configured.
 See more information in <a href="https://github.com/organization/projectname#OnDemand">module documentation</a>.
@@ -345,36 +345,44 @@ class OnDemandApp(object):
     self.ui.tunnelButton.hide()
     self.ui.shutDownButton.hide()
 
-    self.ui.launchButton.connect("clicked()", self.launchAndConnect)
+    self.ui.launchButton.connect("clicked()", self.requestLaunchAndConnect)
     self.ui.shutDownButton.connect("clicked()", self.disconnectAndDestroy)
 
     self.mainWindow.show()
 
+  def updateStatus(self,message):
+    print(message)
+    self.ui.statusbar.showMessage(message)
+    slicer.app.processEvents()
+
   def onCreateInstance(self):
     self.ui.launchButton.hide()
     self.ui.rocketButton.show()
-    self.ui.statusbar.showMessage('Creating an On Demand Machine...')
+    self.updateStatus('Creating an On Demand Machine...')
 
   def onLoopInstanceStatus(self):
     self.ui.rocketButton.hide()
     self.ui.robotButton.show()
-    self.ui.statusbar.showMessage('Setting up the On Demand Machine...')
+    self.updateStatus('Setting up the On Demand Machine...')
 
   def onCreateTunnel(self):
     self.ui.robotButton.hide()
     self.ui.tunnelButton.show()
-    self.ui.statusbar.showMessage('Establishing a secure connection...')
+    self.updateStatus('Establishing a secure connection...')
 
   def onInstanceRunning(self):
     self.ui.tunnelButton.hide()
     self.ui.shutDownButton.show()
-    self.ui.statusbar.showMessage('The On Demand Machine is online.')
+    self.updateStatus('The On Demand Machine is online.')
+
+  def requestLaunchAndConnect(self):
+    self.onCreateInstance()  # Change launch button to rocket button
+    qt.QTimer.singleShot(100, self.launchAndConnect)
 
   def launchAndConnect(self):
     startTime = time.time()
     number = random.randint(1, 1000)
     instanceID = f"sdp-slicer-on-demand-{number}"
-    self.onCreateInstance()  # Change launch button to rocket button
     self.logic.launchSlicer(instanceID)
     launchSlicerTime = time.time()
     self.onLoopInstanceStatus()  # Change rocket button to robot button
@@ -385,7 +393,7 @@ class OnDemandApp(object):
       if status not in ["PENDING", "STAGING"]:
         break
       else:
-        print(f"Status: {status} {waitTime}")
+        self.updateStatus(f"Status: {status} {waitTime}")
     self.onCreateTunnel()  # Change robot button to lock with key button
     port = 6080 + number
     self.sshProcess = self.logic.gcp.instanceSSHTunnel(instanceID, port)
@@ -399,9 +407,9 @@ class OnDemandApp(object):
         reply = requests.get(rootUrl)
         break
       except requests.exceptions.ConnectionError:
-        print("Connection not ready")
+        pass
       time.sleep(1)
-      print(f"Waiting for server ({waitTime})")
+      self.updateStatus(f"Waiting for server ({waitTime})")
     bootTime = time.time()
     qt.QDesktopServices.openUrl(vncQUrl)
     print(f"launchSlicerTime = {launchSlicerTime - startTime}")
