@@ -319,6 +319,13 @@ class OnDemandApp(object):
   def main(self):
 
     self.mainWindow = slicer.util.loadUI(slicer.modules.OnDemandWidget.resourcePath('UI/OnDemandMainWindow.ui'))
+
+    f = qt.QFile(slicer.modules.OnDemandWidget.resourcePath('QSS/OnDemand.qss'))
+    f.open(qt.QFile.ReadOnly | qt.QFile.Text)
+    styleText = qt.QTextStream(f)
+    styleSheet = styleText.readAll()
+    self.mainWindow.setStyleSheet(styleSheet)
+
     self.ui = slicer.util.childWidgetVariables(self.mainWindow)
 
     self.ui.launchButton.connect("clicked()", self.launchAndConnect)
@@ -382,5 +389,4 @@ class OnDemandTest(ScriptedLoadableModuleTest):
     app = OnDemandApp()
     app.main()
     slicer.modules.app = app
-    
 
