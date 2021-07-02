@@ -329,16 +329,11 @@ class OnDemandApp(object):
     self.logic = OnDemandLogic()
 
   def main(self):
-    self.mainWindow = qt.QMainWindow()
-    self.toolBar = self.mainWindow.addToolBar("Instance Controls")
-    self.launchButton = qt.QPushButton("Launch")
-    self.toolBar.addWidget(self.launchButton)
 
-    self.instancesWidget = qt.QWidget()
-    self.instancesWidget.setLayout(qt.QVBoxLayout())
-    self.mainWindow.setCentralWidget(self.instancesWidget)
+    self.mainWindow = slicer.util.loadUI(self.resourcePath('UI/OnDemandMainWindow.ui'))
+    self.ui = slicer.util.childWidgetVariables(self.mainWindow)
 
-    self.launchButton.connect("clicked()", self.launchAndConnect)
+    self.ui.launchButton.connect("clicked()", self.launchAndConnect)
 
     self.mainWindow.show()
 
