@@ -29,7 +29,8 @@ Create compute instances with Slicer pre-configured.
 See more information in <a href="https://github.com/organization/projectname#OnDemand">module documentation</a>.
 """
     self.parent.acknowledgementText = """
-Developed in part with funding from the NCI Imaging Data Commons contract number 19X037Q from Leidos Biomedical Research under Task Order HHSN26100071 from NCI.
+Developed in part with funding from the NCI Imaging Data Commons contract number 19X037Q
+from Leidos Biomedical Research under Task Order HHSN26100071 from NCI.
 
 This file was originally developed by Jean-Christophe Fillion-Robin, Kitware Inc., Andras Lasso, PerkLab,
 and Steve Pieper, Isomics, Inc. and was partially funded by NIH grant 3P41RR013218-12S1.
@@ -211,16 +212,18 @@ class OnDemandWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
 
       # Compute output
       self.logic.process(self.ui.inputSelector.currentNode(), self.ui.outputSelector.currentNode(),
-        self.ui.imageThresholdSliderWidget.value, self.ui.invertOutputCheckBox.checked)
+                         self.ui.imageThresholdSliderWidget.value, self.ui.invertOutputCheckBox.checked)
 
       # Compute inverted output (if needed)
       if self.ui.invertedOutputSelector.currentNode():
         # If additional output volume is selected then result with inverted threshold is written there
-        self.logic.process(self.ui.inputSelector.currentNode(), self.ui.invertedOutputSelector.currentNode(),
-          self.ui.imageThresholdSliderWidget.value, not self.ui.invertOutputCheckBox.checked, showResult=False)
+        self.logic.process(self.ui.inputSelector.currentNode(),
+                           self.ui.invertedOutputSelector.currentNode(),
+                           self.ui.imageThresholdSliderWidget.value,
+                           not self.ui.invertOutputCheckBox.checked, showResult=False)
 
     except Exception as e:
-      slicer.util.errorDisplay("Failed to compute results: "+str(e))
+      slicer.util.errorDisplay("Failed to compute results: " + str(e))
       import traceback
       traceback.print_exc()
 
@@ -324,7 +327,7 @@ class OnDemandApp(object):
 
   def launchAndConnect(self):
     startTime = time.time()
-    number = random.randint(1,1000)
+    number = random.randint(1, 1000)
     instanceID = f"sdp-slicer-on-demand-{number}"
     self.logic.launchSlicer(instanceID)
     launchSlicerTime = time.time()
@@ -336,7 +339,7 @@ class OnDemandApp(object):
         break
       else:
         print(f"Status: {status} {waitTime}")
-    port=6080+number
+    port = 6080 + number
     self.sshProcess = self.logic.gcp.instanceSSHTunnel(instanceID, port)
     instanceSSHTunnelTime = time.time()
     rootUrl = f"http://localhost:{port}"
