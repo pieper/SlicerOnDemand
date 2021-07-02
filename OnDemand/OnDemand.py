@@ -29,7 +29,8 @@ Create compute instances with Slicer pre-configured.
 See more information in <a href="https://github.com/organization/projectname#OnDemand">module documentation</a>.
 """
     self.parent.acknowledgementText = """
-Developed in part with funding from the NCI Imaging Data Commons contract number 19X037Q from Leidos Biomedical Research under Task Order HHSN26100071 from NCI.
+Developed in part with funding from the NCI Imaging Data Commons contract number 19X037Q
+from Leidos Biomedical Research under Task Order HHSN26100071 from NCI.
 
 This file was originally developed by Jean-Christophe Fillion-Robin, Kitware Inc., Andras Lasso, PerkLab,
 and Steve Pieper, Isomics, Inc. and was partially funded by NIH grant 3P41RR013218-12S1.
@@ -211,16 +212,18 @@ class OnDemandWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
 
       # Compute output
       self.logic.process(self.ui.inputSelector.currentNode(), self.ui.outputSelector.currentNode(),
-        self.ui.imageThresholdSliderWidget.value, self.ui.invertOutputCheckBox.checked)
+                         self.ui.imageThresholdSliderWidget.value, self.ui.invertOutputCheckBox.checked)
 
       # Compute inverted output (if needed)
       if self.ui.invertedOutputSelector.currentNode():
         # If additional output volume is selected then result with inverted threshold is written there
-        self.logic.process(self.ui.inputSelector.currentNode(), self.ui.invertedOutputSelector.currentNode(),
-          self.ui.imageThresholdSliderWidget.value, not self.ui.invertOutputCheckBox.checked, showResult=False)
+        self.logic.process(self.ui.inputSelector.currentNode(),
+                           self.ui.invertedOutputSelector.currentNode(),
+                           self.ui.imageThresholdSliderWidget.value,
+                           not self.ui.invertOutputCheckBox.checked, showResult=False)
 
     except Exception as e:
-      slicer.util.errorDisplay("Failed to compute results: "+str(e))
+      slicer.util.errorDisplay("Failed to compute results: " + str(e))
       import traceback
       traceback.print_exc()
 
@@ -316,18 +319,65 @@ class OnDemandApp(object):
   def main(self):
 
     self.mainWindow = slicer.util.loadUI(slicer.modules.OnDemandWidget.resourcePath('UI/OnDemandMainWindow.ui'))
+
+    f = qt.QFile(slicer.modules.OnDemandWidget.resourcePath('QSS/OnDemand.qss'))
+    f.open(qt.QFile.ReadOnly | qt.QFile.Text)
+    styleText = qt.QTextStream(f)
+    styleSheet = styleText.readAll()
+    self.mainWindow.setStyleSheet(styleSheet)
+
     self.ui = slicer.util.childWidgetVariables(self.mainWindow)
+    self.ui.logo.setPixmap(qt.QPixmap(slicer.modules.OnDemandWidget.resourcePath('Icons/logo.png')))
+
+    self.ui.rocketButton = slicer.util.loadUI(slicer.modules.OnDemandWidget.resourcePath('UI/rocketButton.ui'))
+    self.ui.robotButton = slicer.util.loadUI(slicer.modules.OnDemandWidget.resourcePath('UI/robotButton.ui'))
+    self.ui.tunnelButton = slicer.util.loadUI(slicer.modules.OnDemandWidget.resourcePath('UI/tunnelButton.ui'))
+    self.ui.shutDownButton = slicer.util.loadUI(slicer.modules.OnDemandWidget.resourcePath('UI/shutDownButton.ui'))
+
+    self.ui.instancesWidgetVerticalLayout.addWidget(self.ui.rocketButton)
+    self.ui.instancesWidgetVerticalLayout.addWidget(self.ui.robotButton)
+    self.ui.instancesWidgetVerticalLayout.addWidget(self.ui.tunnelButton)
+    self.ui.instancesWidgetVerticalLayout.addWidget(self.ui.shutDownButton)
+
+    self.ui.launchButton.show()
+    self.ui.rocketButton.hide()
+    self.ui.robotButton.hide()
+    self.ui.tunnelButton.hide()
+    self.ui.shutDownButton.hide()
 
     self.ui.launchButton.connect("clicked()", self.launchAndConnect)
+    self.ui.shutDownButton.connect("clicked()", self.disconnectAndDestroy)
 
     self.mainWindow.show()
 
+  def onCreateInstance(self):
+    self.ui.launchButton.hide()
+    self.ui.rocketButton.show()
+    self.ui.statusbar.showMessage('Creating an On Demand Machine...')
+
+  def onLoopInstanceStatus(self):
+    self.ui.rocketButton.hide()
+    self.ui.robotButton.show()
+    self.ui.statusbar.showMessage('Setting up the On Demand Machine...')
+
+  def onCreateTunnel(self):
+    self.ui.robotButton.hide()
+    self.ui.tunnelButton.show()
+    self.ui.statusbar.showMessage('Establishing a secure connection...')
+
+  def onInstanceRunning(self):
+    self.ui.tunnelButton.hide()
+    self.ui.shutDownButton.show()
+    self.ui.statusbar.showMessage('The On Demand Machine is online.')
+
   def launchAndConnect(self):
     startTime = time.time()
-    number = random.randint(1,1000)
+    number = random.randint(1, 1000)
     instanceID = f"sdp-slicer-on-demand-{number}"
+    self.onCreateInstance()  # Change launch button to rocket button
     self.logic.launchSlicer(instanceID)
     launchSlicerTime = time.time()
+    self.onLoopInstanceStatus()  # Change rocket button to robot button
     waitTime = 0
     while waitTime < 300:
       waitTime += 1
@@ -336,7 +386,8 @@ class OnDemandApp(object):
         break
       else:
         print(f"Status: {status} {waitTime}")
-    port=6080+number
+    self.onCreateTunnel()  # Change robot button to lock with key button
+    port = 6080 + number
     self.sshProcess = self.logic.gcp.instanceSSHTunnel(instanceID, port)
     instanceSSHTunnelTime = time.time()
     rootUrl = f"http://localhost:{port}"
@@ -357,8 +408,11 @@ class OnDemandApp(object):
     print(f"instanceSSHTunnelTime = {instanceSSHTunnelTime - launchSlicerTime}")
     print(f"bootTime = {bootTime - instanceSSHTunnelTime}")
     print(f"Total Time = {bootTime - startTime}")
+    self.onInstanceRunning()  # Change lock with key button to shut down button
 
-
+  def disconnectAndDestroy(self):
+    """TODO: Implement instance liquidation."""
+    pass
 #
 # OnDemandTest
 #
@@ -379,5 +433,4 @@ class OnDemandTest(ScriptedLoadableModuleTest):
     app = OnDemandApp()
     app.main()
     slicer.modules.app = app
-    
 

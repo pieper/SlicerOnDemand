@@ -1,0 +1,45 @@
+QMainWindow#MainWindow {
+    background-color: rgb(255,255,255);
+    margin: 0px;
+    padding: 0px;
+    border-radius:  0px;
+}
+QWidget#instancesWidget{
+    background-color: rgb(255,255,255);
+}
+QPushButton#launchButton{
+    border: 3px solid rgb(248,0,0);
+    color: rgb(248,0,0);
+    font-weight:  128;
+    background-color: rgb(245,245,245);
+    border-radius:  122px;
+}
+QPushButton#launchButton:hover {
+    color: #ffffff;
+    font-weight:  128;
+    background-color: rgb(248,0,0);
+    border-radius:  122px;
+}
+QPushButton#rocketButton{
+    border: 3px solid rgb(248,0,0);
+    background-color: rgb(255,207,72);
+    border-radius:  122px;
+}
+QPushButton#robotButton{
+    border: 3px solid rgb(60,170,60);
+    background-color: rgb(189,255,189);
+    border-radius:  122px;
+}
+QPushButton#tunnelButton{
+    border: 3px solid rgb(0,191,255);
+    background-color: rgb(138,255,255);
+    border-radius:  122px;
+}
+QPushButton#shutDownButton{
+    border: 3px solid rgb(187,187,187);
+    background-color: rgb(219,219,219);
+    border-radius:  122px;
+}
+QStatusBar{
+    background-color: rgb(245,245,245);
+}
