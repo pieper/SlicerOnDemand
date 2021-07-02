@@ -329,8 +329,24 @@ class OnDemandApp(object):
     self.ui = slicer.util.childWidgetVariables(self.mainWindow)
     self.ui.logo.setPixmap(qt.QPixmap(slicer.modules.OnDemandWidget.resourcePath('Icons/logo.png')))
 
+    self.ui.rocketButton = slicer.util.loadUI(slicer.modules.OnDemandWidget.resourcePath('UI/rocketButton.ui'))
+    self.ui.robotButton = slicer.util.loadUI(slicer.modules.OnDemandWidget.resourcePath('UI/robotButton.ui'))
+    self.ui.tunnelButton = slicer.util.loadUI(slicer.modules.OnDemandWidget.resourcePath('UI/tunnelButton.ui'))
+    self.ui.shutDownButton = slicer.util.loadUI(slicer.modules.OnDemandWidget.resourcePath('UI/shutDownButton.ui'))
+
+    self.ui.instancesWidgetVerticalLayout.addWidget(self.ui.rocketButton)
+    self.ui.instancesWidgetVerticalLayout.addWidget(self.ui.robotButton)
+    self.ui.instancesWidgetVerticalLayout.addWidget(self.ui.tunnelButton)
+    self.ui.instancesWidgetVerticalLayout.addWidget(self.ui.shutDownButton)
+
+    self.ui.launchButton.show()
+    self.ui.rocketButton.hide()
+    self.ui.robotButton.hide()
+    self.ui.tunnelButton.hide()
+    self.ui.shutDownButton.hide()
 
     self.ui.launchButton.connect("clicked()", self.launchAndConnect)
+    self.ui.shutDownButton.connect("clicked()", self.disconnectAndDestroy)
 
     self.mainWindow.show()
 
@@ -370,7 +386,9 @@ class OnDemandApp(object):
     print(f"bootTime = {bootTime - instanceSSHTunnelTime}")
     print(f"Total Time = {bootTime - startTime}")
 
-
+  def disconnectAndDestroy(self):
+    """TODO: Implement instance liquidation."""
+    pass
 #
 # OnDemandTest
 #
