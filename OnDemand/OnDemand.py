@@ -2,6 +2,8 @@ import json
 import logging
 import os
 import random
+import requests
+import time
 import unittest
 import vtk, qt, ctk, slicer
 from slicer.ScriptedLoadableModule import *
@@ -341,9 +343,11 @@ class OnDemandApp(object):
     self.mainWindow.show()
 
   def launchAndConnect(self):
+    startTime = time.time()
     number = random.randint(1,1000)
     instanceID = f"sdp-slicer-on-demand-{number}"
     self.logic.launchSlicer(instanceID)
+    launchSlicerTime = time.time()
     waitTime = 0
     while waitTime < 300:
       waitTime += 1
@@ -354,8 +358,25 @@ class OnDemandApp(object):
         print(f"Status: {status} {waitTime}")
     port=6080+number
     self.sshProcess = self.logic.gcp.instanceSSHTunnel(instanceID, port)
-    url = f"http://localhost:{port}/vnc.html?autoconnect=true"
-    qt.QDesktopServices.openUrl(qt.QUrl(url))
+    instanceSSHTunnelTime = time.time()
+    rootUrl = f"http://localhost:{port}"
+    vncQUrl = qt.QUrl(f"{rootUrl}/vnc.html?autoconnect=true")
+    waitTime = 0
+    while waitTime < 300:
+      waitTime += 1
+      try:
+        reply = requests.get(rootUrl)
+        break
+      except requests.exceptions.ConnectionError:
+        print("Connection not ready")
+      time.sleep(1)
+      print(f"Waiting for server ({waitTime})")
+    bootTime = time.time()
+    qt.QDesktopServices.openUrl(vncQUrl)
+    print(f"launchSlicerTime = {launchSlicerTime - startTime}")
+    print(f"instanceSSHTunnelTime = {instanceSSHTunnelTime - launchSlicerTime}")
+    print(f"bootTime = {bootTime - instanceSSHTunnelTime}")
+    print(f"Total Time = {bootTime - startTime}")
 
 
 #
