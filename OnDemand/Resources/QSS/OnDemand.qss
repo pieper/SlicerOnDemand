@@ -35,6 +35,11 @@ QPushButton#tunnelButton{
     background-color: rgb(138,255,255);
     border-radius:  122px;
 }
+QPushButton#successButton{
+    border: 3px solid rgb(187,187,187);
+    background-color: rgb(242,242,242);
+    border-radius:  122px;
+}
 QPushButton#shutDownButton{
     border: 3px solid rgb(187,187,187);
     background-color: rgb(219,219,219);
