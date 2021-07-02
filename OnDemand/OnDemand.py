@@ -181,21 +181,6 @@ class OnDemandWidget(ScriptedLoadableModuleWidget, VTKObservationMixin):
     # Make sure GUI changes do not call updateParameterNodeFromGUI (it could cause infinite loop)
     self._updatingGUIFromParameterNode = True
 
-    # Update node selectors and sliders
-    self.ui.inputSelector.setCurrentNode(self._parameterNode.GetNodeReference("InputVolume"))
-    self.ui.outputSelector.setCurrentNode(self._parameterNode.GetNodeReference("OutputVolume"))
-    self.ui.invertedOutputSelector.setCurrentNode(self._parameterNode.GetNodeReference("OutputVolumeInverse"))
-    self.ui.imageThresholdSliderWidget.value = float(self._parameterNode.GetParameter("Threshold"))
-    self.ui.invertOutputCheckBox.checked = (self._parameterNode.GetParameter("Invert") == "true")
-
-    # Update buttons states and tooltips
-    if self._parameterNode.GetNodeReference("InputVolume") and self._parameterNode.GetNodeReference("OutputVolume"):
-      self.ui.applyButton.toolTip = "Compute output volume"
-      self.ui.applyButton.enabled = True
-    else:
-      self.ui.applyButton.toolTip = "Select input and output volume nodes"
-      self.ui.applyButton.enabled = False
-
     # All the GUI updates are done
     self._updatingGUIFromParameterNode = False
 
@@ -330,7 +315,7 @@ class OnDemandApp(object):
 
   def main(self):
 
-    self.mainWindow = slicer.util.loadUI(self.resourcePath('UI/OnDemandMainWindow.ui'))
+    self.mainWindow = slicer.util.loadUI(slicer.modules.OnDemandWidget.resourcePath('UI/OnDemandMainWindow.ui'))
     self.ui = slicer.util.childWidgetVariables(self.mainWindow)
 
     self.ui.launchButton.connect("clicked()", self.launchAndConnect)
