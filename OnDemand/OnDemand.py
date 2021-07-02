@@ -327,6 +327,8 @@ class OnDemandApp(object):
     self.mainWindow.setStyleSheet(styleSheet)
 
     self.ui = slicer.util.childWidgetVariables(self.mainWindow)
+    self.ui.logo.setPixmap(qt.QPixmap(slicer.modules.OnDemandWidget.resourcePath('Icons/logo.png')))
+
 
     self.ui.launchButton.connect("clicked()", self.launchAndConnect)
 
