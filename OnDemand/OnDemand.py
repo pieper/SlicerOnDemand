@@ -332,21 +332,21 @@ class OnDemandApp(object):
     self.ui.rocketButton = slicer.util.loadUI(slicer.modules.OnDemandWidget.resourcePath('UI/rocketButton.ui'))
     self.ui.robotButton = slicer.util.loadUI(slicer.modules.OnDemandWidget.resourcePath('UI/robotButton.ui'))
     self.ui.tunnelButton = slicer.util.loadUI(slicer.modules.OnDemandWidget.resourcePath('UI/tunnelButton.ui'))
-    self.ui.shutDownButton = slicer.util.loadUI(slicer.modules.OnDemandWidget.resourcePath('UI/shutDownButton.ui'))
+    self.ui.successButton = slicer.util.loadUI(slicer.modules.OnDemandWidget.resourcePath('UI/successButton.ui'))
 
     self.ui.instancesWidgetVerticalLayout.addWidget(self.ui.rocketButton)
     self.ui.instancesWidgetVerticalLayout.addWidget(self.ui.robotButton)
     self.ui.instancesWidgetVerticalLayout.addWidget(self.ui.tunnelButton)
-    self.ui.instancesWidgetVerticalLayout.addWidget(self.ui.shutDownButton)
+    self.ui.instancesWidgetVerticalLayout.addWidget(self.ui.successButton)
 
     self.ui.launchButton.show()
     self.ui.rocketButton.hide()
     self.ui.robotButton.hide()
     self.ui.tunnelButton.hide()
-    self.ui.shutDownButton.hide()
+    self.ui.successButton.hide()
 
     self.ui.launchButton.connect("clicked()", self.launchAndConnect)
-    self.ui.shutDownButton.connect("clicked()", self.disconnectAndDestroy)
+    self.ui.successButton.connect("clicked()", self.disconnectAndDestroy)
 
     self.mainWindow.show()
 
@@ -367,7 +367,7 @@ class OnDemandApp(object):
 
   def onInstanceRunning(self):
     self.ui.tunnelButton.hide()
-    self.ui.shutDownButton.show()
+    self.ui.successButton.show()
     self.ui.statusbar.showMessage('The On Demand Machine is online.')
 
   def launchAndConnect(self):
